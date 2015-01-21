@@ -90,6 +90,9 @@ if not os.path.exists(tmpeggs):
 #chroot to installed env
 if os.path.exists(os.path.join(project_path, 'settings.py')):
     print "==================      Creating static...      =================="
+    import stat
+    st = os.stat(os.path.join(bin_path, 'django'))
+    os.chmod(os.path.join(bin_path, 'django'), st.st_mode | stat.S_IEXEC)
     code = subprocess.call([os.path.join(bin_path, 'django'), 'collectstatic', '--noinput'], cwd=path)
     if code:
         print FAIL_TEXT
