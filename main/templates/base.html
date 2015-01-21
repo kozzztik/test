@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    {% block head %}
+        <head>
+            {% block meta %}
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <meta name="author" content="http://vk.com/kozzztik" />
+            {% endblock %}
+            <title>
+                {% block bugtracker_title %}{% endblock %}
+            </title>
+             <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}jquery/jquery-ui.css" />
+             <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}twitter/css/bootstrap.min.css" />
+             <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}fortawesome/css/font-awesome.min.css" />
+             <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css.css" />
+             <!--[if IE 7]>
+             <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}fortawesome/css/font-awesome-ie7.min.css" />
+             <![endif]-->
+             {% block page_styles %}{% endblock %}
+
+             <script type="text/javascript" src="{{ MEDIA_URL }}jquery/jquery-1.10.2.min.js"></script>
+             <script type="text/javascript" src="{{ MEDIA_URL }}jquery/jquery-ui.js"></script>
+             <script type="text/javascript" src="{{ MEDIA_URL }}twitter/js/bootstrap.min.js"></script>
+             <script type="text/javascript" src="{{ MEDIA_URL }}datepicker-ru.js"></script>
+             <script type="text/javascript" src="{{ MEDIA_URL }}jquery.cookie.js"></script>
+             <script type="text/javascript" src="{{ MEDIA_URL }}ajax.js"></script>
+             <script type="text/javascript" src="{{ MEDIA_URL }}fields.js"></script>
+             {% block page_scripts %}{% endblock %}
+        </head>
+    {% endblock %}
+    <body>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12 well">
+                    {% block caption %}{% endblock %}
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2 well">
+                    {% block side_menu %}{% endblock %}
+                </div>
+                <div id="content" class="span10 well">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

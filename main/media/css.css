@@ -1,0 +1,18 @@
+table tr td {
+    height: 30px;
+}
+
+table tr td input {
+    width: 95%;
+    margin-bottom: 0px !important;
+}
+
+table {
+    table-layout: fixed;
+}
+
+.loader {
+    width: 20px;
+    height: 20px;
+    background-image: url('gif-load.gif');
+}

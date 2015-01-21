@@ -1,0 +1,66 @@
+<VirtualHost *:80>
+	ServerName main
+	ServerAlias main
+
+	ErrorLog %PWD%/error.log
+	
+	Alias /static %PWD%/main/static
+	Alias /favicon.ico %PWD%/main/media/favicon.ico
+	
+	<Directory /static>
+        Order allow,deny
+        Allow from all
+        SetHandler None
+        FileETag none
+        Options FollowSymLinks
+
+        <IfModule mod_expires.c>
+            ExpiresActive On
+            ExpiresByType image/gif "access plus 30 days"
+            ExpiresByType image/jpg "access plus 30 days"
+            ExpiresByType image/png "access plus 30 days"
+            ExpiresByType image/jpeg "access plus 30 days"
+            ExpiresByType text/css "access plus 30 days"
+            ExpiresByType application/x-javascript "modification plus 2 years"
+        </IfModule>
+
+        <IfModule mod_headers.c>
+            Header append Vary Accept-Encoding
+        </IfModule>
+
+        AddOutputFilterByType DEFLATE text/html text/css text/plain
+	</Directory>
+
+	Alias /media %PWD%/main/media
+	<Directory /media>
+        Order allow,deny
+        Allow from all
+        SetHandler None
+        FileETag none
+        Options FollowSymLinks
+
+        <IfModule mod_expires.c>
+            ExpiresActive On
+            ExpiresByType image/gif "access plus 30 days"
+            ExpiresByType image/jpg "access plus 30 days"
+            ExpiresByType image/png "access plus 30 days"
+            ExpiresByType image/jpeg "access plus 30 days"
+            ExpiresByType text/css "access plus 30 days"
+            ExpiresByType application/x-javascript "modification plus 2 years"
+        </IfModule>
+
+        <IfModule mod_headers.c>
+            Header append Vary Accept-Encoding
+        </IfModule>
+
+        AddOutputFilterByType DEFLATE text/html text/css text/plain
+	</Directory>
+
+	WSGIScriptAlias / %PWD%/bin/apache.py
+
+	<Directory />
+		Options +ExecCGI
+		Order allow,deny
+		Allow from all
+	</Directory>
+</VirtualHost>

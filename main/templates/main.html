@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block caption %}<h3>Тестовое задание</h3>{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        var models = [
+            {% for model in models %}
+                ["{{model.0}}", "{{model.2}}"],
+            {% endfor %}
+        ];
+        var model_def = [];
+        var model_data = [];
+    </script>
+{% endblock %}
+
+{% block side_menu %}
+<ul>
+    {% for model in models %}
+        <li id="model_{{ model.0 }}">
+            <a href="javascript: load_model('{{model.0}}');">{{ model.2 }}</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block body %}Выберите модель в списке справа для редактирования.{% endblock %}
