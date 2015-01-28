@@ -24,6 +24,8 @@ function on_editor_leave() {
     var data = field_type.get_data(editor_parent);
     var error_text = field_type.validator(editor_field, data);
     var error_box = $('#error_box');
+    var context_parent = editor_parent[0];
+    
     if (error_text) {
         error_box[0].innerHTML = error_text;
         error_box.show();
@@ -43,7 +45,7 @@ function on_editor_leave() {
                     field_id: editor_field['id'], value: data}
                 ),
             success: function() {
-                editor_parent[0].innerHTML = data;
+                context_parent.innerHTML = data;
             },
             error: function() {
                 error_box[0].innerHTML = 'Произошла неизвестная ошибка';
