@@ -28,8 +28,7 @@ class DetailsView(View):
                 field_name = field['id']
                 data_val = getattr(rec, field_name)
                 field_type = SUPPORTED_FIELDS[field['type']]
-                if len(field_type) > 3:
-                    data_val = field_type[3].serialize(data_val)
+                data_val = field_type.serialize(data_val)
                 data_record[field_name] = unicode(data_val)
             data += [data_record]
         return HttpResponse(json.dumps({'defs': model_def, 'data': data}))
@@ -47,11 +46,11 @@ class DetailsView(View):
             field_id = field['id']
             field_data = data[field_id]
             field_type = SUPPORTED_FIELDS[field['type']]
-            if len(field_type) > 3:
-                field_data = field_type[3].deserialize(field_data)
+            field_data = field_type.deserialize(field_data)
             fields[field_id] = field_data
-        model(**fields).save()
-        return HttpResponse()
+        obj = model(**fields)
+        obj.save()
+        return HttpResponse(json.dumps({'id': obj.id}))
     
 class EditView(View):
     def post(self, request, *args, **kwargs):
@@ -73,8 +72,7 @@ class EditView(View):
             return
         
         field_type = SUPPORTED_FIELDS[field['type']]
-        if len(field_type) > 3:
-            value = field_type[3].deserialize(value)
+        value = field_type.deserialize(value)
         setattr(obj, field_id, value)
         obj.save()
         return HttpResponse('{}')

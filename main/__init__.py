@@ -2,30 +2,10 @@ from workdir import PROJECTDIR
 from django.db import models as dj_models
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six import add_metaclass
-from django.utils.timezone import get_current_timezone
+from .fields import SUPPORTED_FIELDS
 from main import models as main_models
 import yaml
 import sys
-import datetime
-
-class BaseSerializer():
-    def serialize(self, data):
-        return data
-    def deserialize(self, data):
-        return data
-
-class DataSerializer(BaseSerializer):
-    def serialize(self, data):
-        return data.strftime("%d.%m.%Y")
-
-    def deserialize(self, data):
-        date = datetime.datetime.strptime(data, "%d.%m.%Y")
-        return datetime.datetime(date.year, date.month, date.day, tzinfo=get_current_timezone())
-    
-SUPPORTED_FIELDS = {}
-SUPPORTED_FIELDS['int'] = (dj_models.IntegerField, (), {})
-SUPPORTED_FIELDS['char'] = (dj_models.CharField, (), {'max_length': 200})
-SUPPORTED_FIELDS['date'] = (dj_models.DateField, (), {}, DataSerializer())
 
 sys.modules['main.models'] = main_models
 
@@ -46,9 +26,10 @@ def get_model(name, title, fields):
         if not default_field and field_type == 'char':
             default_field = field_id
         field_class = SUPPORTED_FIELDS[field_type]
-        field_kwargs = (field_class[2] if len(field_class) > 2 else {}) or {}
+        field_kwargs = field_class.django_field_kwargs.copy()
         field_kwargs['verbose_name'] = field_title
-        model_field = field_class[0](*field_class[1], **field_kwargs)
+        field_args = ()
+        model_field = field_class.get_django_field(field)(*field_args, **field_kwargs)
         if field_id in attrs:
             raise ImproperlyConfigured('Field %s already exists.' % (field_id,))
         attrs[field_id] = model_field
