@@ -10,31 +10,32 @@ class EditorTest(TestCase):
     def test_index(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200, "Index pages opens")
-        
-    def test_details(self):
-        for model in loaded_models.keys():
-            response = self.client.get('/details/', {'model': model})
-            self.assertEqual(response.status_code, 200, "Model %s page opens" % (model,))
     
+    def get_model_object(self, model_name, pk):
+        model = loaded_models[model_name]
+        objs = model.objects.filter(pk=pk)
+        self.assertEquals(objs.count(), 1, 
+            "Object of model %s with id %s not found in DB" % (model_name, pk))
+        return objs[0]
+    
+    def check_obj_field_values(self, obj, model_def, values):
+        for field_def in model_def['fields']:
+            field_id = field_def['id']
+            field_type = SUPPORTED_FIELDS[field_def['type']]
+            field_value = field_type.serialize(getattr(obj, field_id, None))
+            self.assertIn(field_id, values, "Data for field %s is not provided" % (field_id,))
+            exp_value = values[field_id]
+            self.assertEquals(str(exp_value), str(field_value), 
+                "Field %s value differs from expected" %  (field_id,))
+        
     def check_data(self, data):
         for model_name in loaded_models.keys():
             model_data = data[model_name]
             model_def = models_defs[model_name]
             for rec in model_data:
                 pk = rec['id']
-                model = loaded_models[model_name]
-                objs = model.objects.filter(pk=pk)
-                self.assertEquals(objs.count(), 1, 
-                                  "Object of model %s with id %s not found in DB" % (model_name, pk))
-                obj = objs[0]
-                for field_def in model_def['fields']:
-                    field_id = field_def['id']
-                    field_type = SUPPORTED_FIELDS[field_def['type']]
-                    value1 = field_type.serialize(getattr(obj, field_id, None))
-                    value2 = rec[field_id]
-                    self.assertEquals(value1, value2, 
-                                      "Field %s value of model %s with id %s value differs from expected" % 
-                                      (field_id, model_name, pk))
+                obj = self.get_model_object(model_name, pk)
+                self.check_obj_field_values(obj, model_def, rec)
             
     def test_editing(self):
         # for every model generate some inserts
@@ -83,3 +84,16 @@ class EditorTest(TestCase):
                         content_type = 'application/json')
                     self.assertEqual(response.status_code, 200, "Model %s gets update" % (model_name,))
         self.check_data(my_data)
+        
+        # check data display
+        for model_name in loaded_models.keys():
+            response = self.client.get('/details/', {'model': model_name})
+            self.assertEqual(response.status_code, 200, "Model %s page opens" % (model_name,))
+            resp_data = json.loads(response.content)
+            model_def = models_defs[model_name]
+            data = resp_data['data']
+            self.assertEqual(len(data), INSERTS_COUNT, "Model %s records count fits data" % (model_name,))
+            for rec in data:
+                pk = rec['pk']
+                obj = self.get_model_object(model_name, pk)
+                self.check_obj_field_values(obj, model_def, rec)
